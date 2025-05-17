@@ -1,13 +1,14 @@
 from datasets import load_dataset
-from transformers import AutoTokenizer
-from transformers import AutoModelForCausalLM, TrainingArguments, Trainer
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments, Trainer
 
 dataset = load_dataset("csv", data_files="faq.csv")
 dataset = dataset["train"].train_test_split(test_size=0.1)
 
-model_name = "gpt2"  # You can also try EleutherAI or TinyLLaMA
+model_name = "gpt2"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
+model = AutoModelForCausalLM.from_pretrained(model_name)
 
 def tokenize(example):
     tokenized = tokenizer(
@@ -21,8 +22,6 @@ def tokenize(example):
 
 
 tokenized_dataset = dataset.map(tokenize)
-
-model = AutoModelForCausalLM.from_pretrained(model_name)
 
 training_args = TrainingArguments(
     output_dir="./results",
